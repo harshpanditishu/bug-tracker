@@ -3,6 +3,14 @@ pipeline{
 
     stages {
         stage('UNIT TESTS BACKEND') {
+            agent{
+                docker {
+                    image 'snakee/golang-junit:1.21'
+                    reuseNode true
+                    //image 'golang:1.20'
+                    //args '-v /go/pkg/mod:/go/pkg/mod -v $WORKSPACE/bugtracker-backend:/go/src/bugtracker-backend -w /go/src/bugtracker-backend'
+                }
+            }
             steps {
                 dir('bugtracker-backend') {
                     sh 'go test -v ./...'
