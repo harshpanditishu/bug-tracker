@@ -18,6 +18,36 @@ pipeline{
                         go test -v ./... -json | tee test-results.json
                         go-junit-report -in test-output.log -out test-results.xml || true
                     '''
+                    // Generate HTML test report from test output
+                    sh '''
+                        mkdir -p test-reports
+                        cat > test-reports/test-report.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backend Test Results</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        h1 { color: #333; }
+        pre { background: #f8f8f8; padding: 15px; border-radius: 4px; overflow-x: auto; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Backend Go Test Results</h1>
+        <pre>
+EOF
+                        cat test-output.log >> test-reports/test-report.html
+                        cat >> test-reports/test-report.html << 'EOF'
+        </pre>
+    </div>
+</body>
+</html>
+EOF
+                    '''
                     // Generate code coverage report in html format and save it to in a different directory
                     sh '''
                         mkdir -p coverage-reports
@@ -41,8 +71,8 @@ pipeline{
                             allowMissing: false,
                             alwaysLinkToLastBuild: true,
                             keepAll: true,
-                            reportDir: '.',
-                            reportFiles: 'test-results.xml',
+                            reportDir: 'test-reports',
+                            reportFiles: 'test-report.html',
                             reportName: 'Backend Test Results'
                         ])
                     }

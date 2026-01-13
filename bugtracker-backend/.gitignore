@@ -7,5 +7,6 @@ data/
 test-results.xml
 test-output.log
 test-results.json
+test-reports/
 allure-results/
 allure-report/
