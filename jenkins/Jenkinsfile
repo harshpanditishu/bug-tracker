@@ -19,6 +19,21 @@ pipeline{
                 }
             }
         }
+        stage('UNIT TESTS FRONTEND') {
+            agent{
+                docker {
+                    image 'node:20-alpine'
+                    reuseNode true
+                    args '-v $WORKSPACE/bugtracker-frontend:/usr/src/app -w /usr/src/app'
+                }
+            }
+            steps {
+                dir('bugtracker-frontend') {
+                    sh 'npm install'
+                    sh 'npm test -- --watchAll=false'
+                }
+            }
+        }   
         stage('Test') {
             steps {
                 echo 'Testing...'
