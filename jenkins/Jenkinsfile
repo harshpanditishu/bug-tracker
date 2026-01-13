@@ -108,20 +108,7 @@ pipeline{
     
     post {
         always {
-            // JUnit plugin already provides test result visualization
-            // Allure requires allure-results JSON format, not JUnit XML
-            // Commenting out Allure until proper allure-results are generated
-            
-            /*
-            allure([
-                includeProperties: false,
-                jdk: '',
-                properties: [],
-                reportBuildPolicy: 'ALWAYS',
-                results: [[path: 'bugtracker-backend/allure-results'], 
-                         [path: 'bugtracker-frontend/allure-results']]
-            ])
-            */
+            echo 'END OF PIPELINE'
         }
     }
 }
