@@ -90,6 +90,15 @@ pipeline{
                         //In this case, it is looking for a file named 'test-results.xml' in the current directory.
 
                         junit allowEmptyResults: true, testResults: 'test-results.xml'
+                        //publishHTML step to publish the code coverage report
+                        publishHTML(target: [
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: 'bugtracker-frontend/frontendcoverage-reports/coverage',
+                            reportFiles: 'index.html',
+                            reportName: 'Frontend Code Coverage Report'
+                        ])
                     }
                 }
             }
@@ -99,25 +108,20 @@ pipeline{
     
     post {
         always {
-            // Publish Allure Report
-            //exlain allure step
-            //The allure step in the Jenkins pipeline is used to publish Allure test reports.
-            //It collects the test result files specified in the 'results' parameter and generates a comprehensive report.
-            //The report provides insights into the test execution, including passed, failed, and skipped tests
-            //as well as detailed information about each test case.
-            //explain the code below
-            //includeProperties: false - This option indicates that no additional properties should be included in the report.
-            //jdk: '' - This specifies that no specific JDK version is required for generating the report.
-            //properties: [] - This indicates that there are no additional properties to be added to the report.
-            //reportBuildPolicy: 'ALWAYS' - This setting ensures that the report is generated for every build, regardless of the build outcome.
-            //results: [[path: 'bugtracker-backend/test-results.xml'], [path: 'bugtracker-frontend/test-results.xml']] - This specifies the paths to the test result files from both the backend and frontend projects that should be included in the Allure report.    
+            // JUnit plugin already provides test result visualization
+            // Allure requires allure-results JSON format, not JUnit XML
+            // Commenting out Allure until proper allure-results are generated
+            
+            /*
             allure([
                 includeProperties: false,
                 jdk: '',
                 properties: [],
                 reportBuildPolicy: 'ALWAYS',
-                results: [[path: 'bugtracker-backend/test-results.xml'], [path: 'bugtracker-frontend/test-results.xml']]
+                results: [[path: 'bugtracker-backend/allure-results'], 
+                         [path: 'bugtracker-frontend/allure-results']]
             ])
+            */
         }
     }
 }
