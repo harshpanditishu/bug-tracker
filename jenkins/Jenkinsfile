@@ -68,14 +68,8 @@ pipeline{
                     //This is useful in CI environments where you want the tests to run and finish without waiting for further input.
                     
                     sh 'npm test -- --watchAll=false'
-                    // Generate code coverage report in html format and save it to in a different directory
-                    sh '''
-                        mkdir -p frontend/frontendcoverage-reports
-                    '''
-                    sh '''
-                        npm run test -- --coverage --coverageReporters=html
-                        mv coverage frontend/frontendcoverage-reports
-                    '''
+                    // Generate code coverage report in html format
+                    sh 'npm run test -- --coverage --coverageReporters=html'
                 }
             }
             post {
@@ -95,7 +89,7 @@ pipeline{
                             allowMissing: false,
                             alwaysLinkToLastBuild: true,
                             keepAll: true,
-                            reportDir: 'bugtracker-frontend/frontendcoverage-reports/coverage',
+                            reportDir: 'coverage',
                             reportFiles: 'index.html',
                             reportName: 'Frontend Code Coverage Report'
                         ])
