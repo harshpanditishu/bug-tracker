@@ -33,21 +33,27 @@ pipeline{
             post {
                 always {
                     dir('bugtracker-backend') {
+                        // Publish JUnit test results (aggregated with frontend)
                         junit allowEmptyResults: true, testResults: 'test-results.xml'
+                        
+                        // Publish separate HTML test report for backend
+                        publishHTML(target: [
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: '.',
+                            reportFiles: 'test-results.xml',
+                            reportName: 'Backend Test Results'
+                        ])
                     }
-                    //publishHTML step to publish the code coverage report
-                    //explain publishHTML step
-                    //The publishHTML step in the Jenkins pipeline is used to publish HTML reports generated during the build process.
-                    //It allows you to specify the directory where the report is located, the file name of
-                    //the report, and other options such as whether to always link to the last build's report
-                    //and whether to keep all reports or just the latest one.
+                    // Publish backend code coverage report
                     publishHTML(target: [
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'bugtracker-backend/coverage-reports',
                         reportFiles: 'coverage.html',
-                        reportName: 'Backend Code Coverage Report'
+                        reportName: 'Backend Code Coverage'
                     ])
                 }
             }
@@ -75,23 +81,27 @@ pipeline{
             post {
                 always {
                     dir('bugtracker-frontend') {
-                        //what does allowEmptyResults do?
-                        //It allows the Jenkins job to proceed without failing even if no test results are found.
-                        //This is useful in scenarios where tests might not produce results, preventing unnecessary build failures.
-                        //In this case, if no test results are generated, the build will not fail because of it.
-                        //what is testResults?
-                        //It specifies the path to the test result files that Jenkins should look for.
-                        //In this case, it is looking for a file named 'test-results.xml' in the current directory.
-
+                        // Publish JUnit test results (aggregated with backend)
                         junit allowEmptyResults: true, testResults: 'test-results.xml'
-                        //publishHTML step to publish the code coverage report
+                        
+                        // Publish separate HTML test report for frontend
+                        publishHTML(target: [
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: '.',
+                            reportFiles: 'test-report.html',
+                            reportName: 'Frontend Test Results'
+                        ])
+                        
+                        // Publish frontend code coverage report
                         publishHTML(target: [
                             allowMissing: false,
                             alwaysLinkToLastBuild: true,
                             keepAll: true,
                             reportDir: 'coverage',
                             reportFiles: 'index.html',
-                            reportName: 'Frontend Code Coverage Report'
+                            reportName: 'Frontend Code Coverage'
                         ])
                     }
                 }
