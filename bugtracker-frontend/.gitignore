@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Test reports
 test-results.xml
+junit.xml
+allure-results/
+allure-report/

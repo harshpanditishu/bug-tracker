@@ -8,41 +8,116 @@ pipeline{
                     image 'snakee/golang-junit:1.21'
                     reuseNode true
                     args '-e GOCACHE=/tmp/go-cache -e GOPATH=/tmp/go'
-                    //image 'golang:1.20'
-                    //args '-v /go/pkg/mod:/go/pkg/mod -v $WORKSPACE/bugtracker-backend:/go/src/bugtracker-backend -w /go/src/bugtracker-backend'
                 }
             }
             steps {
                 dir('bugtracker-backend') {
-                    sh 'go test -v ./...'
-                    
+                    sh '''
+                        set -e
+                        go test -v ./... 2>&1 | tee test-output.log
+                        go test -v ./... -json | tee test-results.json
+                        go-junit-report -in test-output.log -out test-results.xml || true
+                    '''
+                    // Generate code coverage report in html format and save it to in a different directory
+                    sh '''
+                        mkdir -p coverage-reports
+                    ''' 
+                    sh '''
+                        go test -coverprofile=coverage.out ./...
+                        go tool cover -html=coverage.out -o coverage-reports/coverage.html
+                        
+                    '''
+ 
+                }
+            }
+            post {
+                always {
+                    dir('bugtracker-backend') {
+                        junit allowEmptyResults: true, testResults: 'test-results.xml'
+                    }
+                    //publishHTML step to publish the code coverage report
+                    //explain publishHTML step
+                    //The publishHTML step in the Jenkins pipeline is used to publish HTML reports generated during the build process.
+                    //It allows you to specify the directory where the report is located, the file name of
+                    //the report, and other options such as whether to always link to the last build's report
+                    //and whether to keep all reports or just the latest one.
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'bugtracker-backend/coverage-reports',
+                        reportFiles: 'coverage.html',
+                        reportName: 'Backend Code Coverage Report'
+                    ])
                 }
             }
         }
+        
         stage('UNIT TESTS FRONTEND') {
             agent{
                 docker {
                     image 'node:20-alpine'
                     reuseNode true
-                    args '-v $WORKSPACE/bugtracker-frontend:/usr/src/app -w /usr/src/app'
                 }
             }
             steps {
                 dir('bugtracker-frontend') {
                     sh 'npm install'
+                    //what does --watchAll=false do?
+                    //It runs the tests once and then exits, rather than watching for file changes.
+                    //This is useful in CI environments where you want the tests to run and finish without waiting for further input.
+                    
                     sh 'npm test -- --watchAll=false'
+                    // Generate code coverage report in html format and save it to in a different directory
+                    sh '''
+                        mkdir -p frontend/frontendcoverage-reports
+                    '''
+                    sh '''
+                        npm run test -- --coverage --coverageReporters=html
+                        mv coverage frontend/frontendcoverage-reports
+                    '''
                 }
             }
-        }   
-        stage('Test') {
-            steps {
-                echo 'Testing...'
+            post {
+                always {
+                    dir('bugtracker-frontend') {
+                        //what does allowEmptyResults do?
+                        //It allows the Jenkins job to proceed without failing even if no test results are found.
+                        //This is useful in scenarios where tests might not produce results, preventing unnecessary build failures.
+                        //In this case, if no test results are generated, the build will not fail because of it.
+                        //what is testResults?
+                        //It specifies the path to the test result files that Jenkins should look for.
+                        //In this case, it is looking for a file named 'test-results.xml' in the current directory.
+
+                        junit allowEmptyResults: true, testResults: 'test-results.xml'
+                    }
+                }
             }
         }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying...'
-            }
+        
+    }
+    
+    post {
+        always {
+            // Publish Allure Report
+            //exlain allure step
+            //The allure step in the Jenkins pipeline is used to publish Allure test reports.
+            //It collects the test result files specified in the 'results' parameter and generates a comprehensive report.
+            //The report provides insights into the test execution, including passed, failed, and skipped tests
+            //as well as detailed information about each test case.
+            //explain the code below
+            //includeProperties: false - This option indicates that no additional properties should be included in the report.
+            //jdk: '' - This specifies that no specific JDK version is required for generating the report.
+            //properties: [] - This indicates that there are no additional properties to be added to the report.
+            //reportBuildPolicy: 'ALWAYS' - This setting ensures that the report is generated for every build, regardless of the build outcome.
+            //results: [[path: 'bugtracker-backend/test-results.xml'], [path: 'bugtracker-frontend/test-results.xml']] - This specifies the paths to the test result files from both the backend and frontend projects that should be included in the Allure report.    
+            allure([
+                includeProperties: false,
+                jdk: '',
+                properties: [],
+                reportBuildPolicy: 'ALWAYS',
+                results: [[path: 'bugtracker-backend/test-results.xml'], [path: 'bugtracker-frontend/test-results.xml']]
+            ])
         }
     }
 }

@@ -2,3 +2,10 @@
 data/ 
 # Ignore database file
 *.db 
+
+# Test results and reports
+test-results.xml
+test-output.log
+test-results.json
+allure-results/
+allure-report/
