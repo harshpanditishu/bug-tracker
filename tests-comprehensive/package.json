@@ -1,0 +1,32 @@
+{
+  "name": "bug-tracker-comprehensive-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive API and UI tests for Bug Tracker application using Playwright",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test api/",
+    "test:ui": "playwright test ui/",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui-mode": "playwright test --ui",
+    "test:chromium": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit",
+    "report": "playwright show-report",
+    "report:html": "playwright show-report playwright-report",
+    "codegen": "playwright codegen http://localhost:3000"
+  },
+  "keywords": [
+    "playwright",
+    "testing",
+    "e2e",
+    "api-testing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  }
+}

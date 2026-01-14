@@ -122,6 +122,25 @@ EOF
                     sh 'npx playwright test --reporter=junit --output=test-results.xml'
                 }
             }
+            //publish test results in html format for the test-api stage
+            post {
+                always {
+                    dir('tests-api') {
+                        // Publish JUnit test results for Playwright API tests
+                        junit allowEmptyResults: true, testResults: 'test-results.xml'
+                        
+                        // Publish HTML test report for Playwright API tests
+                        publishHTML(target: [
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: 'playwright-report',
+                            reportFiles: 'index.html',
+                            reportName: 'Playwright API Test Results'
+                        ])
+                    }
+                }
+            }
         }
         
         stage('UNIT TESTS FRONTEND') {
