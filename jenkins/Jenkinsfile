@@ -193,6 +193,24 @@ EOF
             }
         }
         
+        //stage to execute performance tests in tests-perf folder using K6 docker image
+        stage('PERFORMANCE TESTS') {
+            agent{
+                docker {
+                    image 'grafana/k6:latest'
+                    reuseNode true
+                    args '--network=host -u root --entrypoint=""'
+                }
+            }
+            steps
+            {
+                dir('tests-perf') {
+                    // Run K6 performance tests
+                    sh 'k6 run script.js'
+                }
+            }
+        }
+
         stage('UNIT TESTS FRONTEND') {
             agent{
                 docker {
