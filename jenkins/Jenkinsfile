@@ -118,8 +118,8 @@ EOF
                 dir('tests-api') {
                     sh 'npx wait-port http://localhost:8080/api/health --timeout=60000'
                     sh 'npm install'
-                    // Run Playwright tests against the running application
-                    sh 'npx playwright test --reporter=junit --output=test-results.xml'
+                    // Run Playwright tests with both JUnit and HTML reporters
+                    sh 'npx playwright test --reporter=html,junit'
                 }
             }
             //publish test results in html format for the test-api stage
@@ -131,7 +131,7 @@ EOF
                         
                         // Publish HTML test report for Playwright API tests
                         publishHTML(target: [
-                            allowMissing: false,
+                            allowMissing: true,
                             alwaysLinkToLastBuild: true,
                             keepAll: true,
                             reportDir: 'playwright-report',
