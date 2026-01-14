@@ -17,6 +17,7 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: '1.21'
+          #changed code here to use cache action for go modules
           cache-dependency-path: bug-tracker-backend/go.sum
 
       - name: EXECUTE BACKEND UNIT TESTS
