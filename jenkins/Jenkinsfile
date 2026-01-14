@@ -121,35 +121,8 @@ EOF
                     // Run Playwright tests against the running application
                     sh 'npx playwright test --reporter=junit --output=test-results.xml'
                 }
-
             }
         }
-            steps {
-                dir('bugtracker-frontend') {
-                    sh 'npm install'
-                    // Run Playwright tests against the running application
-                    sh 'npx playwright test --reporter=junit --output=test-results.xml'
-                }
-            }
-            post {
-                always {
-                    dir('bugtracker-frontend') {
-                        // Publish Playwright JUnit test results
-                        junit allowEmptyResults: true, testResults: 'test-results.xml'
-                        
-                        // Publish Playwright HTML test report
-                        publishHTML(target: [
-                            allowMissing: false,
-                            alwaysLinkToLastBuild: true,
-                            keepAll: true,
-                            reportDir: 'playwright-report',
-                            reportFiles: 'index.html',
-                            reportName: 'Playwright Test Report'
-                        ])
-                    }
-                }
-            }
-        
         
         stage('UNIT TESTS FRONTEND') {
             agent{
