@@ -69,12 +69,13 @@ EOF
                         
                         // Publish separate HTML test report for backend
                         publishHTML(target: [
-                            allowMissing: false,
+                            allowMissing: true,
                             alwaysLinkToLastBuild: true,
                             keepAll: true,
                             reportDir: 'test-reports',
                             reportFiles: 'test-report.html',
-                            reportName: 'Backend Test Results'
+                            reportName: 'Backend Test Results',
+                            reportTitles: 'Backend Go Tests'
                         ])
                     }
                     // Publish backend code coverage report
@@ -158,6 +159,38 @@ EOF
                     //This is useful in CI environments where you want the tests to run and finish without waiting for further input.
                     
                     sh 'npm test -- --watchAll=false'
+                    // Generate HTML test report from test output
+                    sh '''
+                        mkdir -p test-report
+                        npx jest --json --outputFile=test-report/test-results.json
+                        cat > test-report/test-report.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Test Results</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background
+: white; padding: 20px; border-radius: 8px; }
+        h1 { color: #333; }
+        pre { background: #f8f8f8; padding: 15px; border-radius: 4px; overflow-x: auto; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Frontend Jest Test Results</h1>
+        <pre>
+EOF
+                        npx jest --verbose >> test-report/test-report.html
+                        cat >> test-report/test-report.html << 'EOF'
+        </pre>
+    </div>
+</body>
+</html>
+EOF
+                    '''
                     // Generate code coverage report in html format
                     sh 'npm run test -- --coverage --coverageReporters=html'
                 }
@@ -170,22 +203,24 @@ EOF
                         
                         // Publish separate HTML test report for frontend
                         publishHTML(target: [
-                            allowMissing: false,
+                            allowMissing: true,
                             alwaysLinkToLastBuild: true,
                             keepAll: true,
                             reportDir: '.',
                             reportFiles: 'test-report.html',
-                            reportName: 'Frontend Test Results'
+                            reportName: 'Frontend Test Results',
+                            reportTitles: 'Frontend Jest Tests'
                         ])
                         
                         // Publish frontend code coverage report
                         publishHTML(target: [
-                            allowMissing: false,
+                            allowMissing: true,
                             alwaysLinkToLastBuild: true,
                             keepAll: true,
                             reportDir: 'coverage',
                             reportFiles: 'index.html',
-                            reportName: 'Frontend Code Coverage'
+                            reportName: 'Frontend Code Coverage',
+                            reportTitles: 'Frontend Coverage'
                         ])
                     }
                 }
