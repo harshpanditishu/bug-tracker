@@ -152,7 +152,7 @@ EOF
         {
             agent{
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.50.0-focal'
+                    image 'mcr.microsoft.com/playwright:v1.37.1-focal'
                     reuseNode true
                     args '--network="host"'
                 }
