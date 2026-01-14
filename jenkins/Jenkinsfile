@@ -117,9 +117,14 @@ EOF
             }
             steps{
                 dir('tests-api') {
+                    //explain what wait-port does
+                    // The wait-port command is used to wait for a specific network port to become available before proceeding.
+                    // In this case, it waits for the HTTP service at http://localhost:8080/api/health to be reachable, with a timeout of 60000 milliseconds (60 seconds).
                     sh 'npx wait-port http://localhost:8080/api/health --timeout=60000'
                     sh 'npm install'
                     // Run Playwright tests with both JUnit and HTML reporters
+                    //DOES THE code below execute only the api tests located in tests-api folder?
+                    // Yes, the command 'npx playwright test --reporter=html,junit' executed within the 'tests-api' directory runs the Playwright tests defined in that specific folder.
                     sh 'npx playwright test --reporter=html,junit'
                 }
             }
@@ -143,6 +148,48 @@ EOF
                 }
             }
         }
+        stage('RUN PLAYWRIGHT E2E TESTS')
+        {
+            agent{
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.37.1-focal'
+                    reuseNode true
+                    args '--network="host"'
+                }
+            }
+            steps{
+                dir('tests-e2e') {
+                    
+                    sh 'npx wait-port http://localhost:3000/ --timeout=60000'
+                    sh 'npm install'
+                    // Run Playwright tests with both JUnit and HTML reporters
+                    //does this command also generate test results in xml and html format?
+                    // Yes, the command 'npx playwright test --reporter=html,junit' generates test results in both XML and HTML formats.
+                    // The JUnit reporter creates an XML file (typically named test-results.xml) that contains the test results in a format compatible with JUnit.
+                    // The HTML reporter generates an HTML report (usually in a directory named playwright-report) that provides a visual representation of the test results.   
+                    sh 'npx playwright test --reporter=html,junit'
+                }
+            }
+            //publish test results in html format for the test-e2e stage
+            post {
+                always {
+                    dir('tests-e2e') {
+                        // Publish JUnit test results for Playwright E2E tests
+                        junit allowEmptyResults: true, testResults: 'test-results.xml'
+                        
+                        // Publish HTML test report for Playwright E2E tests
+                        publishHTML(target: [
+                            allowMissing: true,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: 'playwright-report',
+                            reportFiles: 'index.html',
+                            reportName: 'Playwright E2E Test Results'
+                        ])
+                    }
+                }
+            }
+        }
         
         stage('UNIT TESTS FRONTEND') {
             agent{
@@ -161,6 +208,9 @@ EOF
                     sh 'npm test -- --watchAll=false'
                     // Generate HTML test report from test output
                     sh '''
+                    //where is test-report directory created?
+                    // It is created in the current working directory, which is 'bugtracker-frontend' due to the dir step.
+                    // The mkdir -p command ensures that the directory is created if it doesn't already exist.
                         mkdir -p test-report
                         npx jest --json --outputFile=test-report/test-results.json
                         cat > test-report/test-report.html << 'EOF'
