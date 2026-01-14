@@ -154,7 +154,7 @@ EOF
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.37.1-focal'
                     reuseNode true
-                    args '--network="host"'
+                    args '--network="host" -u root'
                 }
             }
             steps{
