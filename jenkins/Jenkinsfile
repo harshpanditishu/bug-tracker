@@ -152,7 +152,7 @@ EOF
         {
             agent{
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.37.1-focal'
+                    image 'mcr.microsoft.com/playwright:v1.50.0-focal'
                     reuseNode true
                     args '--network="host"'
                 }
@@ -162,6 +162,8 @@ EOF
                     
                     sh 'npx wait-port http://localhost:3000/ --timeout=60000'
                     sh 'npm install'
+                    // Install Playwright browsers
+                    sh 'npx playwright install --with-deps chromium'
                     // Run Playwright tests with both JUnit and HTML reporters
                     //does this command also generate test results in xml and html format?
                     // Yes, the command 'npx playwright test --reporter=html,junit' generates test results in both XML and HTML formats.
