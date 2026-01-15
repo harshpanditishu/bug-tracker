@@ -1,0 +1,16 @@
+name:  Nodejs Installer
+
+on: workflow_dispatch
+
+jobs:
+  NodeJsInstallation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+
+      - name: install.js and npm
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nodejs npm
+      
