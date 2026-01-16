@@ -7,6 +7,22 @@ on:
   pull_request:
     branches:
       - main
+      # what other options can be added here?
+     # You can also add tags, paths, or schedule events. For example:
+      # tags: 
+      #   - 'v*.*.*'
+      # paths:
+      #   - 'bugtracker-backend/**'
+      # schedule:
+      #   - cron: '0 0 * * *'  # Runs daily at midnight
+      # workflow_dispatch:  # Allows manual triggering of the workflow
+      #   - workflow_dispatch:
+      #     inputs:
+      #       example_input:
+      #         description: 'An example input'
+      #         required: false
+      #         default: 'default_value'
+
 jobs:
   unit-tests-backend:
     runs-on: ubuntu-latest
@@ -17,8 +33,14 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.21'
+          #what does cache-dependency-path do here?
+          # It specifies the file path to use for caching dependencies. In this case, it uses the go.sum file to determine which dependencies to cache.
+# This helps speed up the build process by reusing previously downloaded dependencies.
+
           cache-dependency-path: bug-tracker-backend/go.sum
 
       - name: EXECUTE BACKEND UNIT TESTS
+      #what does working-directory do here?
+      # It sets the directory in which the command will be executed. In this case, it specifies that the tests should be run in the bugtracker-backend directory.
         working-directory: ./bugtracker-backend
         run: go test -v ./... 
