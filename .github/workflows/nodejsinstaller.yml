@@ -1,0 +1,39 @@
+name:  Nodejs Installer
+
+on: workflow_dispatch
+
+jobs:
+  NodeJsInstallation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+
+      - name: install.js and npm
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nodejs npm
+
+      - name: Check node js version
+        run: |
+          node -v
+          npm -v
+
+  Verification:
+    runs-on: ubuntu-latest
+    needs: NodeJsInstallation
+    steps:
+          - name: checkout code
+            uses: actions/checkout@v3
+            
+          - name: setup nodejs
+            uses: actions/setup-node@v4
+            with:
+             node-version: '18'
+
+          - name: Install Dependencies
+            run: npm install
+
+          - name: Build App
+            run: npm run build
+          
