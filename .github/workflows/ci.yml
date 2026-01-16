@@ -37,7 +37,7 @@ jobs:
           # It specifies the file path to use for caching dependencies. In this case, it uses the go.sum file to determine which dependencies to cache.
 # This helps speed up the build process by reusing previously downloaded dependencies.
 
-          cache-dependency-path: bug-tracker-backend/go.sum
+          cache-dependency-path: bugtracker-backend/go.sum
 
       - name: EXECUTE BACKEND UNIT TESTS
       #what does working-directory do here?
