@@ -43,4 +43,147 @@ jobs:
       #what does working-directory do here?
       # It sets the directory in which the command will be executed. In this case, it specifies that the tests should be run in the bugtracker-backend directory.
         working-directory: ./bugtracker-backend
-        run: go test -v ./... 
+        run: |
+          go test -v -coverprofile=coverage.out ./...
+          go tool cover -html=coverage.out -o coverage.html
+      - name: Publish Backend Test Coverage HTML Report
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+            name: backend-coverage-html-report
+            path: ./bugtracker-backend/coverage.html
+            retention-days: 30 
+
+  unit-tests-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          #what does cache-dependency-path do here?
+          # It specifies the file path to use for caching dependencies. In this case, it uses the package-lock.json file to determine which dependencies to cache.
+          cache-dependency-path: bugtracker-frontend/package-lock.json 
+      - name: INSTALL FRONTEND DEPENDENCIES
+        working-directory: ./bugtracker-frontend
+        run: npm install
+      - name: RUN FRONTEND UNIT TESTS
+        working-directory: ./bugtracker-frontend
+        run: npm test -- --coverage
+      - name: Publish Frontend Test Coverage HTML Report
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+            name: frontend-coverage-html-report
+            path: ./bugtracker-frontend/coverage
+            retention-days: 30
+
+  run-playwright-api-tests:
+      name: RUN PLAYWRIGHT API TESTS
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+        - name: Set up Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18'
+            cache-dependency-path: bugtracker-frontend/package-lock.json
+        - name: INSTALL FRONTEND DEPENDENCIES
+          working-directory: ./tests-api
+          run: npm install
+        - name: RUN PLAYWRIGHT API TESTS
+          working-directory: ./tests-api
+          run: npx playwright test
+        - name: Publish Playwright API HTML Report
+          if: always()
+          uses: actions/upload-artifact@v2
+          with:
+              name: playwright-api-html-report
+              path: ./tests-api/playwright-report
+              retention-days: 30
+          
+       
+
+  run-performance-tests:
+      name: RUN PERFORMANCE TESTS
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+        - name: Set up Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18'
+            cache-dependency-path: bugtracker-frontend/package-lock.json
+        - name: INSTALL FRONTEND DEPENDENCIES
+          working-directory: ./tests-perf
+          run: npm install
+        - name: Setup k6
+          uses: grafana/setup-k6-action@v1
+        - name: RUN PERFORMANCE TESTS
+          working-directory: ./tests-perf
+          run: k6 run --out json=results.json script.js
+        - name: Publish Performance Test Results
+          if: always()
+          uses: actions/upload-artifact@v2
+          with:
+              name: k6-performance-results
+              path: ./tests-perf/results.json
+              retention-days: 30
+        - name: Publish Performance HTML Report
+          if: always()
+          uses: actions/upload-artifact@v2
+          with:
+              name: k6-performance-html-report
+              path: ./tests-perf/perf-results.html
+              retention-days: 30
+                 
+        
+  run-playwright-e2e-tests:
+      name: RUN PLAYWRIGHT E2E TESTS
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+        - name: Set up Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18'
+            cache-dependency-path: bugtracker-frontend/package-lock.json
+        - name: INSTALL FRONTEND DEPENDENCIES
+          working-directory: ./tests-e2e
+          run: npm install
+        - name : Install Playwright Browsers
+          working-directory: ./tests-e2e
+          run: npx playwright install --with-deps chromium
+        - name: RUN PLAYWRIGHT E2E TESTS
+          run: npx playwright test
+
+          #publish-test-results can be added to collect and display test results in GitHub Actions UI
+          # For example, you can use the following step to publish JUnit test results:
+          # - name: Publish Test Results
+          #   uses: actions/upload-artifact@v2
+          #publish test results for playwright e2e tests using junit format
+        - name: Publish Playwright E2E Test Results
+       
+        # It ensures that this step runs regardless of whether previous steps succeeded or failed.
+          if: always()
+          uses: actions/upload-artifact@v2
+          with:
+              name: playwright-e2e-test-results
+              path: ./tests-e2e/test-results
+        - name: Publish Playwright HTML Report
+          if: always()
+          uses: actions/upload-artifact@v2
+          with:
+              name: playwright-html-report
+              path: ./tests-e2e/playwright-report
+              retention-days: 30
+       
+
+
+           
+ 
