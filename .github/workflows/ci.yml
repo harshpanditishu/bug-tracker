@@ -48,7 +48,7 @@ jobs:
           go tool cover -html=coverage.out -o coverage.html
       - name: Publish Backend Test Coverage HTML Report
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
             name: backend-coverage-html-report
             path: ./bugtracker-backend/coverage.html
@@ -74,7 +74,7 @@ jobs:
         run: npm test -- --coverage
       - name: Publish Frontend Test Coverage HTML Report
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
             name: frontend-coverage-html-report
             path: ./bugtracker-frontend/coverage
@@ -99,7 +99,7 @@ jobs:
           run: npx playwright test
         - name: Publish Playwright API HTML Report
           if: always()
-          uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v4
           with:
               name: playwright-api-html-report
               path: ./tests-api/playwright-report
@@ -128,14 +128,14 @@ jobs:
           run: k6 run --out json=results.json script.js
         - name: Publish Performance Test Results
           if: always()
-          uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v4
           with:
               name: k6-performance-results
               path: ./tests-perf/results.json
               retention-days: 30
         - name: Publish Performance HTML Report
           if: always()
-          uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v4
           with:
               name: k6-performance-html-report
               path: ./tests-perf/perf-results.html
@@ -171,13 +171,13 @@ jobs:
        
         # It ensures that this step runs regardless of whether previous steps succeeded or failed.
           if: always()
-          uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v4
           with:
               name: playwright-e2e-test-results
               path: ./tests-e2e/test-results
         - name: Publish Playwright HTML Report
           if: always()
-          uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v4
           with:
               name: playwright-html-report
               path: ./tests-e2e/playwright-report
